@@ -1,0 +1,19 @@
+{
+  "name": "English Trainer",
+  "short_name": "English",
+  "description": "ChatGPTの音声会話とつなぐ英語アウトプット訓練アプリ。お題、口頭SRS、弱点集計。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#E8E7E2",
+  "theme_color": "#E8E7E2",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

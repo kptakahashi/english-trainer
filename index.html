@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#E8E7E2">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#15161A">
+<meta name="description" content="ChatGPTの音声会話とつなぐ英語アウトプット訓練アプリ">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>English Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+
+<style>
+:root{
+  --ground:#E8E7E2; --sheet:#F6F5F2; --sheet2:#EFEEE9;
+  --ink:#22232A; --ink2:#4A4C55; --muted:#7A7C85;
+  --rule:#D2D1CA; --rule2:#BFBEB6;
+  --blue:#2C4A9A; --blue-soft:#DDE3F1;
+  --red:#B0332B; --red-soft:#F0DFDD;
+  --green:#3D6949;
+  --amber:#8A6212;
+  --onblue:#FFFFFF;
+  --shadow:0 1px 0 rgba(34,35,42,.05), 0 2px 8px rgba(34,35,42,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#15161A; --sheet:#1E1F25; --sheet2:#25262D;
+    --ink:#E7E7E4; --ink2:#B6B7BE; --muted:#8B8D96;
+    --rule:#31333B; --rule2:#454751;
+    --blue:#8CA4EA; --blue-soft:#242A42;
+    --red:#E28076; --red-soft:#3A2624;
+    --green:#84B48B;
+    --amber:#D6A54A;
+    --onblue:#14151A;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 2px 10px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#15161A; --sheet:#1E1F25; --sheet2:#25262D;
+  --ink:#E7E7E4; --ink2:#B6B7BE; --muted:#8B8D96;
+  --rule:#31333B; --rule2:#454751;
+  --blue:#8CA4EA; --blue-soft:#242A42;
+  --red:#E28076; --red-soft:#3A2624;
+  --green:#84B48B;
+  --amber:#D6A54A;
+  --onblue:#14151A;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 2px 10px rgba(0,0,0,.25);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.55; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:38rem; margin:0 auto; padding:0 1rem 7.5rem}
+
+header.top{
+  position:sticky; top:0; z-index:20; background:var(--ground);
+  border-bottom:1px solid var(--rule);
+  display:flex; align-items:center; gap:.75rem;
+  padding:.75rem 1rem .7rem; max-width:38rem; margin:0 auto;
+}
+.brand{
+  display:flex; align-items:center; gap:.42rem; margin:0;
+  font-family:"Newsreader",Georgia,serif; font-size:1.16rem; font-weight:500;
+  letter-spacing:-.012em; line-height:1; white-space:nowrap;
+}
+.brand .mark{height:1.2rem; width:auto; flex:none; display:block}
+.brand .mark line{stroke:var(--blue); stroke-width:3.4; stroke-linecap:round}
+.brand .t{color:var(--ink2)}
+.top .spacer{flex:1}
+.streak{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.72rem; color:var(--muted); letter-spacing:.04em; font-variant-numeric:tabular-nums}
+.streak b{color:var(--ink); font-weight:600}
+
+nav.tabs{
+  position:fixed; left:0; right:0; bottom:0; z-index:30;
+  background:var(--sheet); border-top:1px solid var(--rule);
+  display:flex; padding-bottom:env(safe-area-inset-bottom);
+}
+nav.tabs button{
+  flex:1; background:none; border:0; padding:.7rem .3rem .8rem; cursor:pointer;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.66rem;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  border-top:2px solid transparent; margin-top:-1px;
+}
+nav.tabs button[aria-selected="true"]{color:var(--ink); border-top-color:var(--blue)}
+nav.tabs .cnt{
+  display:inline-block; min-width:1.1rem; margin-left:.28rem; padding:0 .22rem;
+  background:var(--blue); color:var(--onblue); border-radius:.6rem;
+  font-size:.6rem; line-height:1.1rem; font-variant-numeric:tabular-nums;
+}
+
+.sheet{background:var(--sheet); border:1px solid var(--rule); border-radius:3px; box-shadow:var(--shadow); padding:1rem; margin-top:.9rem}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.66rem; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); display:flex; align-items:center; gap:.5rem; margin:0 0 .55rem}
+.eyebrow::after{content:""; flex:1; height:1px; background:var(--rule)}
+h2.big{font-family:"Newsreader",Georgia,serif; font-weight:500; font-size:1.42rem; line-height:1.3; margin:.15rem 0 .6rem; text-wrap:balance; letter-spacing:-.005em}
+p{margin:.5rem 0}
+.dim{color:var(--muted)}
+.small{font-size:.85rem}
+
+.sess-meta{display:flex; align-items:center; gap:.55rem; flex-wrap:wrap}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.95rem; font-weight:600; font-variant-numeric:tabular-nums; color:var(--blue)}
+.pill{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.64rem; letter-spacing:.12em; text-transform:uppercase; padding:.18rem .45rem; border:1px solid var(--rule2); border-radius:2px; color:var(--ink2)}
+.pill.lvl{color:var(--amber); border-color:var(--amber)}
+
+ul.phr{list-style:none; margin:.2rem 0 0; padding:0; display:flex; flex-direction:column; gap:.35rem}
+ul.phr li{font-family:"Newsreader",Georgia,serif; font-size:1.02rem; padding-left:1.05rem; position:relative}
+ul.phr li::before{content:""; position:absolute; left:0; top:.68em; width:.55rem; height:1px; background:var(--blue)}
+
+.btn{
+  display:block; width:100%; text-align:center; cursor:pointer;
+  font-family:"IBM Plex Sans",sans-serif; font-size:.95rem; font-weight:600;
+  padding:.8rem 1rem; border-radius:3px; border:1px solid var(--ink);
+  background:var(--ink); color:var(--ground); margin-top:.6rem; text-decoration:none;
+}
+.btn.ghost{background:transparent; color:var(--ink); border-color:var(--rule2); font-weight:500}
+.btn.blue{background:var(--blue); border-color:var(--blue); color:var(--onblue)}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible, button:focus-visible, textarea:focus-visible, summary:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+.btn[disabled]{opacity:.4; cursor:default}
+.row{display:flex; gap:.5rem}
+.btn.sm{font-size:.8rem; padding:.5rem .7rem; font-weight:500}
+
+textarea{
+  width:100%; min-height:7rem; resize:vertical; background:var(--sheet2); color:var(--ink);
+  border:1px solid var(--rule2); border-radius:3px; padding:.6rem; margin-top:.4rem;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.8rem; line-height:1.5;
+}
+pre.out{
+  background:var(--sheet2); border:1px solid var(--rule); border-radius:3px; padding:.6rem;
+  margin:.6rem 0 0; overflow:auto; white-space:pre-wrap; word-break:break-word;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.72rem; line-height:1.5;
+  color:var(--ink2); max-height:15rem;
+}
+.note{font-size:.8rem; color:var(--muted); margin-top:.5rem}
+.note.err{color:var(--red)}
+.note.ok{color:var(--green)}
+
+.timer{display:flex; align-items:center; gap:.9rem}
+.clock{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:2.5rem; font-weight:500; font-variant-numeric:tabular-nums; letter-spacing:-.02em; line-height:1}
+.clock.over{color:var(--red)}
+.timer .btn{margin-top:0; flex:1}
+
+.card-face{min-height:8.5rem; display:flex; flex-direction:column; justify-content:center; gap:.55rem; padding:.4rem 0}
+.card-front{font-family:"Newsreader",Georgia,serif; font-size:1.3rem; line-height:1.4; text-wrap:balance}
+.card-back{font-family:"Newsreader",Georgia,serif; font-size:1.3rem; line-height:1.4; color:var(--blue); border-top:1px dashed var(--rule2); padding-top:.7rem; text-wrap:balance}
+.card-note{font-size:.85rem; color:var(--muted)}
+.grade{display:flex; gap:.5rem; margin-top:.7rem}
+.grade .btn{margin-top:0}
+.g0{border-color:var(--red); color:var(--red); background:transparent}
+.g1{border-color:var(--rule2); color:var(--ink); background:transparent}
+.g2{border-color:var(--green); color:var(--green); background:transparent}
+
+.kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem}
+.kpi{background:var(--sheet2); border:1px solid var(--rule); border-radius:3px; padding:.55rem .6rem}
+.kpi .v{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:1.3rem; font-weight:600; font-variant-numeric:tabular-nums; line-height:1.2}
+.kpi .k{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.58rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+
+table.bars{width:100%; border-collapse:collapse; font-size:.85rem}
+table.bars td{padding:.26rem 0; vertical-align:middle}
+table.bars td.lab{width:7.5rem; color:var(--ink2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:.5rem}
+table.bars td.n{width:2rem; text-align:right; font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; color:var(--muted); font-size:.78rem}
+.bar{height:.5rem; background:var(--red); border-radius:1px; min-width:2px}
+
+ol.log{list-style:none; margin:.3rem 0 0; padding:0}
+ol.log li{border-top:1px solid var(--rule); padding:.65rem 0}
+ol.log li:first-child{border-top:0}
+.log-h{display:flex; gap:.55rem; align-items:baseline}
+.log-d{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.74rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.log-t{font-family:"Newsreader",Georgia,serif; font-size:.98rem; line-height:1.35; flex:1}
+details.det summary{cursor:pointer; font-size:.8rem; color:var(--blue); margin-top:.35rem; list-style:none}
+details.det summary::-webkit-details-marker{display:none}
+details.det summary::before{content:"\25B8  "}
+details.det[open] summary::before{content:"\25BE  "}
+.fix{font-size:.88rem; margin:.45rem 0; padding-left:.7rem; border-left:2px solid var(--red-soft)}
+.fix .said{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--red)}
+.up{font-size:.88rem; margin:.45rem 0; padding-left:.7rem; border-left:2px solid var(--blue-soft)}
+.up .a{color:var(--muted)}
+.up .b{color:var(--blue); font-family:"Newsreader",Georgia,serif; font-size:1.02rem}
+
+.empty{text-align:center; padding:2rem 1rem; color:var(--muted)}
+.empty .mark{font-family:"Newsreader",Georgia,serif; font-size:2rem; color:var(--rule2); display:block; margin-bottom:.4rem}
+.hide{display:none !important}
+@media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1 class="brand">
+    <svg class="mark" viewBox="0 0 14 20" width="14" height="20" aria-hidden="true" focusable="false">
+      <line x1="4.7" y1="5.0" x2="2.9" y2="11.4"></line>
+      <line x1="11.1" y1="5.0" x2="9.3" y2="11.4"></line>
+    </svg>
+    <span>English <span class="t">Trainer</span></span>
+  </h1>
+  <div class="spacer"></div>
+  <div class="streak" id="streakBox"></div>
+</header>
+
+<div class="wrap">
+
+  <!-- ================= TODAY ================= -->
+  <section id="v-today">
+    <div class="sheet">
+      <p class="eyebrow">Today's session</p>
+      <div class="sess-meta">
+        <span class="num" id="sNum"></span>
+        <span class="pill" id="sType"></span>
+        <span class="pill lvl" id="sStar"></span>
+      </div>
+      <h2 class="big" id="sTopic"></h2>
+      <p class="eyebrow">Target phrases &mdash; <span id="sGroup"></span></p>
+      <ul class="phr" id="sPhrases"></ul>
+      <div class="row">
+        <button class="btn ghost sm" id="btnReroll">別のフレーズ</button>
+        <button class="btn ghost sm" id="btnSkip">お題をスキップ</button>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <p class="eyebrow">1 &mdash; Start</p>
+      <p class="small dim">開始プロンプトをコピー → ChatGPTのプロジェクトに<b>テキストで</b>送信 → 返事が来たらマイクへ。</p>
+      <button class="btn blue" id="btnCopyStart">開始プロンプトをコピー</button>
+      <div class="row">
+        <button class="btn ghost sm" id="btnShowStart">本文を表示</button>
+        <a class="btn ghost sm" id="btnOpenGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPTを開く</a>
+      </div>
+      <pre class="out hide" id="outStart"></pre>
+      <p class="note" id="noteStart"></p>
+    </div>
+
+    <div class="sheet">
+      <p class="eyebrow">2 &mdash; Talk</p>
+      <div class="timer">
+        <div class="clock" id="clock">12:00</div>
+        <button class="btn ghost" id="btnTimer">開始</button>
+      </div>
+      <p class="note">画面を離れても計測は続きます。戻れば経過が反映されます。</p>
+    </div>
+
+    <div class="sheet">
+      <p class="eyebrow">3 &mdash; Report</p>
+      <p class="small dim">音声モードを<b>終了してから</b>、終了プロンプトをテキストで送る。</p>
+      <button class="btn blue" id="btnCopyEnd">終了プロンプトをコピー</button>
+      <button class="btn ghost sm" id="btnShowEnd">本文を表示</button>
+      <pre class="out hide" id="outEnd"></pre>
+      <p class="note" id="noteEnd"></p>
+    </div>
+
+    <div class="sheet">
+      <p class="eyebrow">4 &mdash; Save</p>
+      <p class="small dim">出力されたJSONをそのまま貼り付け。<code>```json</code> のフェンスごとで構いません。</p>
+      <textarea id="taReport" placeholder="ここにレポートJSONを貼り付け" spellcheck="false"></textarea>
+      <button class="btn" id="btnSaveReport">取り込む</button>
+      <p class="note" id="noteReport"></p>
+    </div>
+  </section>
+
+  <!-- ================= REVIEW ================= -->
+  <section id="v-review" class="hide">
+    <div class="sheet" id="revEmpty">
+      <div class="empty">
+        <span class="mark">&mdash;</span>
+        今日の復習はありません。<br>セッションを1本走らせるとカードが溜まります。
+      </div>
+    </div>
+
+    <div class="sheet hide" id="revCard">
+      <p class="eyebrow"><span id="revKind"></span> &mdash; 残り <span id="revLeft"></span></p>
+      <div class="card-face">
+        <div class="card-front" id="revFront"></div>
+        <div class="card-back hide" id="revBack"></div>
+        <div class="card-note hide" id="revNote"></div>
+      </div>
+      <button class="btn blue" id="btnReveal">声に出してから開く</button>
+      <div class="grade hide" id="revGrade">
+        <button class="btn g0" data-g="0">詰まった</button>
+        <button class="btn g1" data-g="1">言えた</button>
+        <button class="btn g2" data-g="2">楽勝</button>
+      </div>
+    </div>
+
+    <div class="sheet hide" id="revDone">
+      <p class="eyebrow">Done</p>
+      <p>今日の分は終わりです。<span id="revDoneN"></span>枚。</p>
+    </div>
+
+    <div class="sheet">
+      <p class="eyebrow">Deck</p>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="kDue">0</div><div class="k">Due</div></div>
+        <div class="kpi"><div class="v" id="kCards">0</div><div class="k">Cards</div></div>
+        <div class="kpi"><div class="v" id="kMature">0</div><div class="k">7d+</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOG ================= -->
+  <section id="v-log" class="hide">
+    <div class="sheet">
+      <p class="eyebrow">Training</p>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="kSess">0</div><div class="k">Sessions</div></div>
+        <div class="kpi"><div class="v" id="kStreak">0</div><div class="k">Streak</div></div>
+        <div class="kpi"><div class="v" id="kLevel">&mdash;</div><div class="k">Level</div></div>
+      </div>
+      <p class="note" id="levelTrend"></p>
+    </div>
+
+    <div class="sheet" id="errSheet">
+      <p class="eyebrow">Recurring errors</p>
+      <table class="bars"><tbody id="errBars"></tbody></table>
+      <p class="note">同じtypeが3回以上出たら、それが今週の重点課題。</p>
+    </div>
+
+    <div class="sheet">
+      <p class="eyebrow">Sessions</p>
+      <ol class="log" id="logList"></ol>
+    </div>
+
+    <div class="sheet">
+      <p class="eyebrow">Backup</p>
+      <p class="small dim">ブラウザのデータを消すと記録は失われます。10セッションごとに書き出してください。</p>
+      <button class="btn ghost" id="btnExport">データを書き出す</button>
+      <button class="btn ghost sm" id="btnShowImport">データを読み込む</button>
+      <div class="hide" id="importBox">
+        <textarea id="taImport" placeholder="バックアップJSONを貼り付け" spellcheck="false"></textarea>
+        <button class="btn" id="btnImport">上書きして復元</button>
+      </div>
+      <p class="note" id="noteBackup"></p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-v="today" aria-selected="true">Today</button>
+  <button role="tab" data-v="review" aria-selected="false">Review<span class="cnt hide" id="dueBadge">0</span></button>
+  <button role="tab" data-v="log" aria-selected="false">Log</button>
+</nav>
+
+<script>
+"use strict";
+
+/* ---------------------------------------------------------------- data --- */
+
+var GROUPS = {
+  g1:{name:"意見を組み立てる", p:["The way I see it, ...","I'd argue that ...","My sense is that ...","If I had to take a position, I'd say ...","I'm inclined to think ...","What strikes me is ..."]},
+  g2:{name:"ヘッジ", p:["It tends to be the case that ...","To some extent, yes — but ...","More often than not, ...","I wouldn't go that far, but ...","There's an argument that ...","Broadly speaking, ..."]},
+  g3:{name:"反論・受け流し", p:["That said, ...","I take your point, but ...","I'd push back on that slightly.","That's true in theory. In practice, ...","I see it almost the opposite way.","Fair — though that assumes ..."]},
+  g4:{name:"言い直し", p:["Or rather, ...","What I mean is ...","Let me put that another way.","Sorry — let me back up.","I'm not putting this well. The point is ..."]},
+  g5:{name:"時間を稼ぐ", p:["That's a good question — give me a second.","It depends what you mean by ...","Hmm, there are two ways to look at that.","I've not thought about it in those terms before."]},
+  g6:{name:"構造化", p:["There are basically two things going on here.","The short answer is X. The longer answer is ...","Let me start with the practical side.","... and that brings me to the second point.","So to bring it back to your question, ..."]},
+  g7:{name:"具体化・強調", p:["To give you a concrete example, ...","This is exactly the problem: ...","What really matters here is ...","And that's not a small thing."]},
+  g8:{name:"悪い知らせ", p:["I want to be upfront with you about something.","I'm afraid the timeline has moved.","I'd rather tell you now than closer to the date.","Here's where we are, and here's what I'd propose."]},
+  g9:{name:"提案・交渉", p:["What I'd propose is ...","Would it work for you if we ...?","I have some flexibility on X, less on Y.","Let's see if we can find a middle ground.","I can't commit to that, but what I can do is ..."]},
+  g10:{name:"異論・断る", p:["I'm not sure that's the right call, and here's why.","Can I offer a different read on this?","Realistically, that's not something we can absorb right now.","I'd want to understand the reasoning before I sign up to that."]},
+  g11:{name:"因果・条件", p:["which means that ...",", and as a result, ...","If that were the case, we'd have to ...","Had we known earlier, we would have ...","The reason being that ..."]},
+  g12:{name:"締める", p:["So on balance, I'd say ...","That's roughly where I land on it.","I could be persuaded otherwise, but that's my starting point."]}
+};
+
+var TYPE_GROUPS = {
+  OPINION:["g1","g3"], BUSINESS:["g8","g9","g10"], EXPLAIN:["g6","g7"],
+  RETELL:["g6","g11"], RAPID:["g5","g4"], ABSTRACT:["g2","g3","g12"]
+};
+
+var TOPICS = [
+  ["EXPLAIN","Explain what my company actually does, to someone completely outside my industry.",1],
+  ["EXPLAIN","Explain my own role — not my title, what I actually do on a Tuesday.",1],
+  ["BUSINESS","I am three weeks late on a delivery. I have to tell the client. You are the client.",1],
+  ["OPINION","Remote work has made teams worse, not better.",1],
+  ["EXPLAIN","Explain a decision my company made that I disagreed with.",1],
+  ["BUSINESS","I am asking my manager for a budget I probably won't get. You are my manager.",1],
+  ["RETELL","I summarise a news story from this week, then defend why it matters.",1],
+  ["RAPID","20 rapid questions about my work. I answer each in under five seconds.",1],
+  ["OPINION","Is it better to be respected or liked at work?",2],
+  ["BUSINESS","Negotiate a price with me. You are a hard buyer and you will not make it easy.",2],
+  ["ABSTRACT","Does technology make people less patient, or does it just reveal impatience?",2],
+  ["EXPLAIN","Explain a mistake I made and what I would do differently. Do not let me make excuses.",2],
+  ["OPINION","Companies should be allowed to fire people much more easily.",2],
+  ["ABSTRACT","What does a society lose when everyone works from home?",2],
+  ["BUSINESS","I have to give critical feedback to someone who outranks me. You are that person.",2],
+  ["RAPID","20 rapid questions on abstract topics. Under five seconds each.",2],
+  ["ABSTRACT","Should governments regulate AI, or is regulation always too late to matter?",3],
+  ["BUSINESS","I present a strategy to a board that thinks it is a bad idea. You are the board.",3],
+  ["ABSTRACT","Is economic growth still a sensible goal for a rich country?",3],
+  ["OPINION","Meritocracy is a comforting story, not a description of reality.",3],
+  ["EXPLAIN","Explain my industry's biggest structural problem and why nobody fixes it.",3],
+  ["ABSTRACT","Where should the line be between privacy and public safety?",3],
+  ["BUSINESS","A stakeholder keeps changing the requirements. I must stay polite and hold the line.",3],
+  ["ABSTRACT","Does globalisation still benefit ordinary people in developed countries?",3],
+  ["OPINION","Is ambition overrated?",2],
+  ["BUSINESS","I turn down a request from a senior person without damaging the relationship.",2],
+  ["ABSTRACT","Should university education be free?",2],
+  ["EXPLAIN","Explain how something in my daily life actually works — payments, trains, electricity.",2],
+  ["OPINION","Working long hours is a personal choice, not a systemic problem.",2],
+  ["ABSTRACT","What obligations do rich countries have to poor ones?",3],
+  ["BUSINESS","My project is being cancelled. I argue to keep it alive.",3],
+  ["RETELL","I retell a book or film's argument, then say where it is wrong.",2],
+  ["ABSTRACT","Is social media a net negative for democracy?",3],
+  ["OPINION","Japan's biggest problem is not demographics, it is decision-making.",3],
+  ["BUSINESS","Onboard a new client: I explain our process, you are sceptical throughout.",2],
+  ["ABSTRACT","Should there be a limit on how much wealth one person can hold?",3],
+  ["EXPLAIN","Explain a technical concept to a non-technical executive in ninety seconds.",2],
+  ["OPINION","Most meetings should be abolished, not shortened.",2],
+  ["ABSTRACT","Is cultural difference a real constraint on business, or an excuse?",3],
+  ["BUSINESS","I deliver bad performance news to a direct report. You are that report.",3],
+  ["ABSTRACT","What should we do about work that AI makes unnecessary?",3],
+  ["OPINION","Loyalty to a company is irrational in 2026.",2],
+  ["EXPLAIN","Explain why I chose my career. Ask 'but why really?' three times.",2],
+  ["ABSTRACT","Does the concept of national identity still do useful work?",3],
+  ["BUSINESS","Recover a relationship after my team badly let a client down.",3],
+  ["OPINION","Risk-taking is overrated; most success is patience.",2],
+  ["ABSTRACT","Should healthcare ration by cost-effectiveness?",3],
+  ["RAPID","Mixed rapid-fire: work, opinion, hypothetical, personal. Five seconds each.",3]
+];
+
+var RULES = "Rules: English only. No corrections until I say END SESSION. Natural speed, C1 vocabulary,\ndo not simplify. Your turns: 2-4 sentences, always end with a question. Make me do 70% of\nthe talking. Push back on my position at least twice. If I go silent, offer one phrase and\nwait — do not fill the silence yourself.\n\nStart now with one short line and your first question.";
+
+var END_PROMPT = 'END SESSION.\n\nNow review the whole conversation and output a report. Be harsh. I want the things I got\nwrong, not encouragement. Output ONLY the JSON, in a code block, nothing before or after.\n\n{\n  "date": "@DATE@",\n  "session_type": "@TYPE@",\n  "topic": "@TOPIC@",\n  "fluency": {\n    "verdict": "one blunt paragraph: was I fluent, or was I assembling sentences word by word?",\n    "filler_habits": ["fillers and stalling patterns I actually used"],\n    "self_repair_count": 0,\n    "estimated_level": "B1 / B2 / B2+ / C1"\n  },\n  "errors": [\n    { "said": "what I actually said", "fix": "the correct version", "why": "one short line", "type": "grammar|word choice|collocation|preposition|tense|article" }\n  ],\n  "upgrades": [\n    { "plain": "the flat/simple thing I said", "refined": "how a C1 speaker would say it", "register": "neutral|formal|business|conversational", "note": "why it lands better" }\n  ],\n  "reached_for_but_missed": [\n    { "meaning": "the idea I was clearly struggling to express", "english": "the phrase I needed" }\n  ],\n  "new_lexis": [\n    { "item": "word or chunk", "meaning_en": "short definition", "example": "a sentence using it about ME, from this conversation" }\n  ],\n  "target_phrase_usage": [\n    { "phrase": "", "used": true, "naturally": true }\n  ],\n  "next_session": { "type": "", "topic": "", "reason": "which weakness this attacks" }\n}\n\nRules for the report:\n- "errors": every real error, up to 12. Do not soften them. Skip pure pronunciation.\n- "upgrades": exactly 5. This is the most important section. Take things I said that were\n  correct but flat, and show me the version that sounds like someone who works in English.\n- "reached_for_but_missed": moments where I stalled, circled, or gave up on an idea.\n- "new_lexis": 5-8 items, drawn from THIS conversation, not a generic word list.';
+
+/* --------------------------------------------------------------- state --- */
+
+var KEY = "speakingLadder.v1";
+var S = null;
+
+function blank(){ return {v:1, ladder:0, phraseOffset:0, sessions:[], cards:[], timerStart:0}; }
+
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){ var o = JSON.parse(raw); if(o && typeof o === "object"){ return normalize(o); } }
+  }catch(e){}
+  return blank();
+}
+function normalize(o){
+  var b = blank();
+  b.ladder = o.ladder|0; b.phraseOffset = o.phraseOffset|0;
+  b.sessions = Array.isArray(o.sessions) ? o.sessions : [];
+  b.cards = Array.isArray(o.cards) ? o.cards : [];
+  b.timerStart = o.timerStart|0;
+  return b;
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+function dayNum(d){ d = d || new Date(); return Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate())).getTime()/864e5); }
+function isoToday(){ var d = new Date(), p = function(n){ return (n<10?"0":"")+n; };
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function $(id){ return document.getElementById(id); }
+
+/* ---------------------------------------------------------- session plan --- */
+
+function plan(){
+  var i = S.ladder % TOPICS.length;
+  var t = TOPICS[i];
+  var gs = TYPE_GROUPS[t[0]] || ["g1"];
+  var g = GROUPS[gs[S.ladder % gs.length]];
+  var off = S.phraseOffset % g.p.length;
+  var phrases = [];
+  for(var k=0;k<3 && k<g.p.length;k++){ phrases.push(g.p[(off+k) % g.p.length]); }
+  return {n:i+1, lap:Math.floor(S.ladder/TOPICS.length)+1, type:t[0], topic:t[1], star:t[2], group:g.name, phrases:phrases};
+}
+
+function weakPoints(){
+  var recent = S.sessions.slice(-3), counts = {}, sample = {};
+  recent.forEach(function(s){
+    (s.errors||[]).forEach(function(e){
+      var t = (e.type||"other").split("|")[0].trim() || "other";
+      counts[t] = (counts[t]||0)+1;
+      if(!sample[t] && e.fix){ sample[t] = e.fix; }
+    });
+  });
+  var keys = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a]; }).slice(0,3);
+  if(!keys.length){ return null; }
+  return keys.map(function(k){
+    return "- " + k + " (" + counts[k] + "x recently)" + (sample[k] ? ' — e.g. I should have said: "' + sample[k] + '"' : "");
+  }).join("\n");
+}
+
+function startPrompt(){
+  var p = plan(), w = weakPoints();
+  return "SESSION TYPE: " + p.type + "\nTOPIC: " + p.topic +
+    "\n\nTARGET PHRASES (try to make me use these naturally, but do not tell me you are doing it):\n" +
+    p.phrases.map(function(x){ return "- " + x; }).join("\n") +
+    "\n\nMY KNOWN WEAK POINTS (watch for these in the report):\n" +
+    (w || "- This is an early session. I have little data yet — establish a baseline and tell me\n  honestly where I actually am.") +
+    "\n\n" + RULES;
+}
+function endPrompt(){
+  var p = plan();
+  return END_PROMPT.replace("@DATE@", isoToday()).replace("@TYPE@", p.type)
+    .replace("@TOPIC@", p.topic.replace(/"/g, "'"));
+}
+
+/* ---------------------------------------------------------------- copy --- */
+
+function copy(text, noteEl, preEl){
+  var done = function(ok){
+    noteEl.className = "note " + (ok ? "ok" : "err");
+    if(ok){ noteEl.textContent = "コピーしました。ChatGPTに貼り付けてください。"; }
+    else{
+      noteEl.textContent = "コピーがブロックされました。下の本文を長押しして選択してください。";
+      if(preEl){ preEl.textContent = text; preEl.classList.remove("hide"); }
+    }
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ fallback(); });
+  }else{ fallback(); }
+  function fallback(){
+    try{
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly","");
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta); done(!!ok);
+    }catch(e){ done(false); }
+  }
+}
+
+/* -------------------------------------------------------------- parsing --- */
+
+function parseReport(raw){
+  var s = String(raw||"").trim();
+  if(!s){ throw new Error("何も貼り付けられていません。"); }
+  var f = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if(f){ s = f[1]; }
+  var a = s.indexOf("{"), b = s.lastIndexOf("}");
+  if(a < 0 || b <= a){ throw new Error("JSONが見つかりません。ChatGPTの出力を丸ごと貼り付けてください。"); }
+  s = s.slice(a, b+1);
+  var o;
+  try{ o = JSON.parse(s); }
+  catch(e){ throw new Error("JSONとして読めませんでした。出力が途中で切れていないか確認してください。"); }
+  if(!o || typeof o !== "object"){ throw new Error("形式が違います。"); }
+  return o;
+}
+
+function arr(x){ return Array.isArray(x) ? x : []; }
+
+function ingest(o){
+  var p = plan();
+  var sess = {
+    date: (typeof o.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(o.date)) ? o.date : isoToday(),
+    n: p.n, lap: p.lap,
+    type: o.session_type || p.type,
+    topic: o.topic || p.topic,
+    fluency: o.fluency && typeof o.fluency === "object" ? o.fluency : {},
+    errors: arr(o.errors), upgrades: arr(o.upgrades),
+    missed: arr(o.reached_for_but_missed), lexis: arr(o.new_lexis),
+    next: o.next_session && typeof o.next_session === "object" ? o.next_session : null
+  };
+  S.sessions.push(sess);
+
+  var made = 0, seen = {};
+  S.cards.forEach(function(c){ seen[normKey(c.back)] = 1; });
+
+  function add(type, front, back, note){
+    front = String(front||"").trim(); back = String(back||"").trim();
+    if(!front || !back) return;
+    var k = normKey(back);
+    if(seen[k]) return;
+    seen[k] = 1; made++;
+    S.cards.push({id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+      type:type, front:front, back:back, note:String(note||""), src:sess.date,
+      ease:2.3, ivl:0, due:dayNum(), reps:0, lapses:0});
+  }
+
+  sess.upgrades.forEach(function(u){ add("upgrade", u.plain, u.refined, u.note || u.register || ""); });
+  sess.missed.forEach(function(m){ add("missed", m.meaning || m.meaning_ja_or_en, m.english, ""); });
+  sess.lexis.forEach(function(l){ add("lexis", l.meaning_en, l.item, l.example || ""); });
+
+  S.ladder++; S.phraseOffset += 3; S.timerStart = 0;
+  save();
+  return {cards:made, errors:sess.errors.length};
+}
+function normKey(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
+
+/* ------------------------------------------------------------------ SRS --- */
+
+function dueCards(){
+  var t = dayNum();
+  return S.cards.filter(function(c){ return (c.due|0) <= t; });
+}
+function grade(c, g){
+  if(g === 0){ c.reps = 0; c.lapses++; c.ease = Math.max(1.3, c.ease - 0.2); c.ivl = 0; }
+  else{
+    c.reps++;
+    if(c.reps === 1){ c.ivl = 1; }
+    else if(c.reps === 2){ c.ivl = 3; }
+    else{ c.ivl = Math.max(1, Math.round(c.ivl * c.ease)); }
+    if(g === 2){ c.ivl = Math.round(c.ivl * 1.35); c.ease = Math.min(2.8, c.ease + 0.05); }
+  }
+  c.due = dayNum() + (c.ivl|0);
+  save();
+}
+
+/* ----------------------------------------------------------------- misc --- */
+
+function streak(){
+  if(!S.sessions.length) return 0;
+  var days = {};
+  S.sessions.forEach(function(s){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s.date);
+    if(m) days[dayNum(new Date(+m[1], +m[2]-1, +m[3]))] = 1;
+  });
+  var t = dayNum(), n = 0;
+  if(!days[t] && !days[t-1]) return 0;
+  var d = days[t] ? t : t-1;
+  while(days[d]){ n++; d--; }
+  return n;
+}
+
+/* --------------------------------------------------------------- render --- */
+
+var KIND_LABEL = {upgrade:"平凡 → C1", missed:"言えなかった表現", lexis:"新出語彙"};
+var KIND_HINT  = {upgrade:"これをC1の言い方に", missed:"これを英語で", lexis:"この意味の語を"};
+
+function renderToday(){
+  var p = plan();
+  $("sNum").textContent = "#" + p.n + (p.lap > 1 ? " · " + p.lap + "周目" : "");
+  $("sType").textContent = p.type;
+  $("sStar").textContent = ["","B2","C1入口","C1"][p.star] || "";
+  $("sTopic").textContent = p.topic;
+  $("sGroup").textContent = p.group;
+  $("sPhrases").innerHTML = p.phrases.map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("");
+}
+
+function renderStreak(){
+  var n = streak();
+  $("streakBox").innerHTML = "<b>" + S.sessions.length + "</b> sessions &nbsp;·&nbsp; <b>" + n + "</b>d streak";
+  var d = dueCards().length, badge = $("dueBadge");
+  badge.textContent = d;
+  badge.classList.toggle("hide", d === 0);
+}
+
+var rev = {queue:[], cur:null, done:0, shown:false};
+
+function startReview(){
+  rev.queue = dueCards().slice().sort(function(a,b){ return (a.due|0)-(b.due|0); });
+  rev.done = 0; nextCard();
+}
+function nextCard(){
+  rev.shown = false;
+  renderStreak();
+  $("kDue").textContent = dueCards().length;
+  $("kCards").textContent = S.cards.length;
+  $("kMature").textContent = S.cards.filter(function(c){ return (c.ivl|0) >= 7; }).length;
+
+  if(!rev.queue.length){
+    $("revCard").classList.add("hide");
+    $("revEmpty").classList.toggle("hide", rev.done > 0);
+    $("revDone").classList.toggle("hide", rev.done === 0);
+    $("revDoneN").textContent = rev.done;
+    renderStreak();
+    return;
+  }
+  $("revEmpty").classList.add("hide"); $("revDone").classList.add("hide");
+  $("revCard").classList.remove("hide");
+  rev.cur = rev.queue[0];
+  $("revKind").textContent = KIND_LABEL[rev.cur.type] || rev.cur.type;
+  $("revLeft").textContent = rev.queue.length;
+  $("revFront").innerHTML = '<span class="card-note">' + esc(KIND_HINT[rev.cur.type]||"") + "</span><br>" + esc(rev.cur.front);
+  $("revBack").textContent = rev.cur.back;
+  $("revBack").classList.add("hide");
+  $("revNote").textContent = rev.cur.note || "";
+  $("revNote").classList.add("hide");
+  $("btnReveal").classList.remove("hide");
+  $("revGrade").classList.add("hide");
+}
+
+function renderLog(){
+  $("kSess").textContent = S.sessions.length;
+  $("kStreak").textContent = streak();
+  var lv = "—", trend = [];
+  S.sessions.slice(-8).forEach(function(s){
+    var l = s.fluency && s.fluency.estimated_level;
+    if(l){ trend.push(String(l).trim()); }
+  });
+  if(trend.length){ lv = trend[trend.length-1]; }
+  $("kLevel").textContent = lv;
+  $("levelTrend").textContent = trend.length > 1 ? "推移: " + trend.join("  →  ") : "";
+
+  var counts = {};
+  S.sessions.forEach(function(s){ (s.errors||[]).forEach(function(e){
+    var t = (e.type||"other").split("|")[0].trim() || "other";
+    counts[t] = (counts[t]||0)+1; }); });
+  var keys = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a]; }).slice(0,7);
+  var max = keys.length ? counts[keys[0]] : 1;
+  $("errSheet").classList.toggle("hide", !keys.length);
+  $("errBars").innerHTML = keys.map(function(k){
+    return '<tr><td class="lab">'+esc(k)+'</td><td><div class="bar" style="width:'+
+      Math.max(2, Math.round(counts[k]/max*100))+'%"></div></td><td class="n">'+counts[k]+"</td></tr>";
+  }).join("");
+
+  var list = S.sessions.slice().reverse();
+  $("logList").innerHTML = list.length ? list.map(function(s){
+    var body = "";
+    (s.upgrades||[]).slice(0,5).forEach(function(u){
+      body += '<div class="up"><span class="a">'+esc(u.plain)+'</span><br><span class="b">'+esc(u.refined)+"</span></div>";
+    });
+    (s.errors||[]).slice(0,6).forEach(function(e){
+      body += '<div class="fix"><span class="said">'+esc(e.said)+'</span> &rarr; <span class="to">'+esc(e.fix)+"</span></div>";
+    });
+    var v = s.fluency && s.fluency.verdict ? '<p class="small dim">'+esc(s.fluency.verdict)+"</p>" : "";
+    return "<li><div class=\"log-h\"><span class=\"log-d\">"+esc(s.date)+"</span><span class=\"log-t\">"+esc(s.topic)+
+      '</span></div><span class="pill">'+esc(s.type)+"</span>"+
+      (body||v ? '<details class="det"><summary>中身を見る</summary>'+v+body+"</details>" : "")+"</li>";
+  }).join("") : '<li><div class="empty"><span class="mark">&mdash;</span>まだ記録がありません。</div></li>';
+}
+
+/* ---------------------------------------------------------------- timer --- */
+
+var TOTAL = 12*60;
+function tick(){
+  var el = $("clock"), btn = $("btnTimer");
+  if(!S.timerStart){ el.textContent = "12:00"; el.classList.remove("over"); btn.textContent = "開始"; return; }
+  var el2 = Math.floor((Date.now() - S.timerStart)/1000);
+  var left = TOTAL - el2, over = left < 0, a = Math.abs(left);
+  var m = Math.floor(a/60), s = a%60;
+  el.textContent = (over?"+":"") + m + ":" + (s<10?"0":"") + s;
+  el.classList.toggle("over", over);
+  btn.textContent = "リセット";
+}
+
+/* ----------------------------------------------------------------- wire --- */
+
+function show(v){
+  ["today","review","log"].forEach(function(x){ $("v-"+x).classList.toggle("hide", x !== v); });
+  Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"), function(b){
+    b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"); });
+  if(v === "review"){ startReview(); }
+  if(v === "log"){ renderLog(); }
+  window.scrollTo(0,0);
+}
+
+S = load();
+renderToday(); renderStreak(); tick();
+setInterval(tick, 1000);
+
+Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"), function(b){
+  b.addEventListener("click", function(){ show(b.dataset.v); });
+});
+
+$("btnCopyStart").addEventListener("click", function(){ copy(startPrompt(), $("noteStart"), $("outStart")); });
+$("btnCopyEnd").addEventListener("click", function(){ copy(endPrompt(), $("noteEnd"), $("outEnd")); });
+$("btnShowStart").addEventListener("click", function(){
+  var p = $("outStart"); p.textContent = startPrompt(); p.classList.toggle("hide"); });
+$("btnShowEnd").addEventListener("click", function(){
+  var p = $("outEnd"); p.textContent = endPrompt(); p.classList.toggle("hide"); });
+
+$("btnReroll").addEventListener("click", function(){ S.phraseOffset++; save(); renderToday(); });
+$("btnSkip").addEventListener("click", function(){ S.ladder++; save(); renderToday();
+  $("outStart").classList.add("hide"); $("noteStart").textContent = ""; });
+
+$("btnTimer").addEventListener("click", function(){
+  S.timerStart = S.timerStart ? 0 : Date.now(); save(); tick(); });
+
+$("btnSaveReport").addEventListener("click", function(){
+  var n = $("noteReport");
+  try{
+    var r = ingest(parseReport($("taReport").value));
+    $("taReport").value = "";
+    $("outStart").classList.add("hide"); $("noteStart").textContent = "";
+    n.className = "note ok";
+    n.textContent = "取り込みました。カード " + r.cards + " 枚、指摘 " + r.errors + " 件。次のお題に進みました。";
+    renderToday(); renderStreak();
+  }catch(e){ n.className = "note err"; n.textContent = e.message; }
+});
+
+$("btnReveal").addEventListener("click", function(){
+  $("revBack").classList.remove("hide");
+  if(rev.cur && rev.cur.note){ $("revNote").classList.remove("hide"); }
+  $("btnReveal").classList.add("hide");
+  $("revGrade").classList.remove("hide");
+});
+Array.prototype.forEach.call(document.querySelectorAll("#revGrade button"), function(b){
+  b.addEventListener("click", function(){
+    var g = +b.dataset.g, c = rev.cur;
+    grade(c, g);
+    rev.queue.shift();
+    if(g === 0){ rev.queue.push(c); } else { rev.done++; }
+    nextCard();
+  });
+});
+
+$("btnExport").addEventListener("click", function(){
+  var data = JSON.stringify(S, null, 1), n = $("noteBackup");
+  var name = "speaking-ladder-" + isoToday() + ".json";
+  if(window.claude && claude.use){
+    claude.use("downloads").then(function(d){
+      if(d){ return d.save({filename:name, data:data}).then(function(){
+        n.className = "note ok"; n.textContent = "書き出しました: " + name; }); }
+      throw new Error("no downloads");
+    }).catch(function(){ copy(data, n, null); });
+  }else{ copy(data, n, null); }
+});
+$("btnShowImport").addEventListener("click", function(){ $("importBox").classList.toggle("hide"); });
+$("btnImport").addEventListener("click", function(){
+  var n = $("noteBackup");
+  try{
+    var o = JSON.parse($("taImport").value);
+    if(!o || !Array.isArray(o.sessions)){ throw new Error("bad"); }
+    S = normalize(o); save();
+    n.className = "note ok"; n.textContent = "復元しました。セッション " + S.sessions.length + " 件、カード " + S.cards.length + " 枚。";
+    renderToday(); renderStreak(); renderLog(); $("taImport").value = "";
+  }catch(e){ n.className = "note err"; n.textContent = "読み込めませんでした。バックアップJSONをそのまま貼り付けてください。"; }
+});
+</script>
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
