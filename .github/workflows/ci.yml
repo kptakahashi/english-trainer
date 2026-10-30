@@ -1,0 +1,40 @@
+# The machine says no before a human has to. Every push to main and every PR: ESLint, ruff, pyright, pytest.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - name: npm dependency vulnerabilities
+        run: npm audit --audit-level=high
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: ruff format --check .
+      - run: ruff check .
+      - run: pyright
+      - run: pytest
+      - name: The page builds
+        run: python tools/build_pwa.py

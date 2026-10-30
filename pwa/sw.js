@@ -3,7 +3,7 @@
    index.html だけはネットワーク優先にして、更新が翌日には必ず届くようにする。
    アプリを更新したら CACHE の版番号を1つ上げること。 */
 
-var CACHE = "english-trainer-v1";
+var CACHE = "english-trainer-v2";
 var ASSETS = [
   "./",
   "./index.html",

@@ -1,0 +1,58 @@
+# Harness: lint + types + tests. Run before every commit:
+#   ruff check . && ruff format --check . && pyright && pytest
+# Rules that a machine can judge live here, not in CLAUDE.md. Limits are a ratchet: start where today's code passes,
+# lower them when code is split, and raise only in a PR of its own with a reason.
+# Copied from Brain (pyproject.toml) on 2026-10-30. Only tools/ and tests/ are Python here.
+[tool.ruff]
+line-length = 160
+target-version = "py312"
+extend-exclude = [".venv", ".claude", "node_modules", "logs"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W", "I", "B", "UP", "SIM", "C4", "PIE", "PERF", # correctness, modern syntax, simplifications
+    "C90", "PLR0911", "PLR0912", "PLR0913", "PLR0915",        # size: complexity, returns, branches, args, statements
+    "S",                                                      # security (bandit)
+    "DTZ",                                                    # naive datetimes
+    "BLE",                                                    # blind `except Exception`: swallow on purpose only, with a noqa reason
+    "T20", "ERA",                                             # no print(), no commented-out code
+    "PT",                                                     # pytest style
+    "ARG", "TRY", "PLR2004",
+    "RUF",                                                    # ruff's own checks; includes RUF100 unused noqa
+    "PGH004",                                                 # no blanket noqa
+]
+# E501: line length is ruff format's job. RUF001-003: Japanese text uses full-width punctuation on purpose.
+ignore = ["E501", "RUF001", "RUF002", "RUF003"]
+# A noqa must name its rule and carry a reason: "# noqa: S603 - fixed argv". tests/test_lint_hygiene.py enforces it.
+
+[tool.ruff.lint.pylint]
+max-args = 5
+max-branches = 8
+max-returns = 4
+max-statements = 30
+
+[tool.ruff.lint.mccabe]
+max-complexity = 8
+
+[tool.ruff.lint.per-file-ignores]
+# Tests print on failure, assert by design, use literal values, and compare against magic numbers.
+"tests/*" = ["T20", "S101", "S105", "PLR2004"]
+# CLI: 標準出力に結果を出すのが使い方そのもの。
+"tools/*.py" = ["T20"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+# tools/ はパッケージではなく CLI の置き場。テストからはモジュールとして読む
+pythonpath = ["tools"]
+
+[tool.pyright]
+include = ["tools", "tests"]
+extraPaths = ["tools"]
+exclude = [".venv", ".claude", "node_modules", "logs"]
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "strict"
+reportMissingImports = true
+reportMissingTypeStubs = false
