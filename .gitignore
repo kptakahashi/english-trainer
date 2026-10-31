@@ -1,0 +1,15 @@
+# 学習の記録は端末とこの PC の中だけ。公開リポジトリに入れない(decisions/0001)
+logs/*
+!logs/.gitkeep
+
+# 作られるもの。Actions が作って Pages に出す
+pwa/index.html
+
+# 道具
+node_modules/
+.venv/
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+.env

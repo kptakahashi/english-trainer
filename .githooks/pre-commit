@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# 最初の防衛線。有効化は 1 回だけ:  git config core.hooksPath .githooks
+# このリポジトリは公開(decisions/0001)。学習の記録と秘密を入れない。コードを変えたら lint とテストを回す。
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+staged=$(git -c core.quotepath=false diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+# 1. 入れてはいけないファイル: 学習の記録、.env、作られるもの
+bad=$(echo "$staged" | grep -E '^logs/[^/]+$|(^|/)\.env$|^pwa/index\.html$' | grep -v '^logs/\.gitkeep$' || true)
+if [ -n "$bad" ]; then
+  echo "pre-commit: 公開リポジトリに入れてはいけないファイルです:" >&2
+  echo "$bad" >&2
+  exit 1
+fi
+
+# 2. 秘密らしき文字列と、衝突マーカー
+added=$(git diff --cached -U0 | grep -E '^\+[^+]' || true)
+# here-string で渡す(パイプだと pipefail の下で grep -q が早く抜けたとき SIGPIPE で「無かった」扱いになる)
+if grep -E -q 'sk-(ant-|proj-)?[A-Za-z0-9_-]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}' <<<"$added"; then
+  echo "pre-commit: 追加した行に秘密らしき文字列があります。消してから(本物なら失効させて)stage し直してください" >&2
+  exit 1
+fi
+if grep -E -q '^\+(<<<<<<<|=======|>>>>>>>)( |$)' <<<"$added"; then
+  echo "pre-commit: 衝突マーカーが残っています" >&2
+  exit 1
+fi
+
+# 3. JS(app/index.html の中を含む)
+if grep -q -E '\.(js|mjs|html)$|^package(-lock)?\.json$' <<<"$staged"; then
+  npx --no-install eslint . || { echo "pre-commit: ESLint が通りません" >&2; exit 1; }
+fi
+
+# 4. Python
+if grep -q -E '\.py$|^pyproject\.toml$|^requirements[^/]*\.txt$' <<<"$staged"; then
+  vpy=.venv/Scripts/python; [ -x "$vpy" ] || vpy=.venv/bin/python
+  "$vpy" -m ruff format --check . && "$vpy" -m ruff check . && "$vpy" -m pyright && "$vpy" -m pytest || {
+    echo "pre-commit: ruff / pyright / pytest が通りません" >&2
+    exit 1
+  }
+fi

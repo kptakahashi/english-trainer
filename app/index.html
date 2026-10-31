@@ -1,16 +1,3 @@
-<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#E8E7E2">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#15161A">
-<meta name="description" content="ChatGPTの音声会話とつなぐ英語アウトプット訓練アプリ">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./favicon-64.png" sizes="64x64" type="image/png">
-<link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
 <title>English Trainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -190,8 +177,7 @@ details.det[open] summary::before{content:"\25BE  "}
 .hide{display:none !important}
 @media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
 </style>
-</head>
-<body>
+
 <header class="top">
   <h1 class="brand">
     <svg class="mark" viewBox="0 0 14 20" width="14" height="20" aria-hidden="true" focusable="false">
@@ -437,7 +423,7 @@ function load(){
   try{
     var raw = localStorage.getItem(KEY);
     if(raw){ var o = JSON.parse(raw); if(o && typeof o === "object"){ return normalize(o); } }
-  }catch(e){}
+  }catch{}
   return blank();
 }
 function normalize(o){
@@ -448,7 +434,7 @@ function normalize(o){
   b.timerStart = o.timerStart|0;
   return b;
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch{} }
 
 function dayNum(d){ d = d || new Date(); return Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate())).getTime()/864e5); }
 function isoToday(){ var d = new Date(), p = function(n){ return (n<10?"0":"")+n; };
@@ -523,7 +509,7 @@ function copy(text, noteEl, preEl){
       document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
       var ok = document.execCommand("copy");
       document.body.removeChild(ta); done(!!ok);
-    }catch(e){ done(false); }
+    }catch{ done(false); }
   }
 }
 
@@ -539,7 +525,7 @@ function parseReport(raw){
   s = s.slice(a, b+1);
   var o;
   try{ o = JSON.parse(s); }
-  catch(e){ throw new Error("JSONとして読めませんでした。出力が途中で切れていないか確認してください。"); }
+  catch(e){ throw new Error("JSONとして読めませんでした。出力が途中で切れていないか確認してください。", { cause: e }); }
   if(!o || typeof o !== "object"){ throw new Error("形式が違います。"); }
   return o;
 }
@@ -631,11 +617,13 @@ function renderToday(){
   $("sStar").textContent = ["","B2","C1入口","C1"][p.star] || "";
   $("sTopic").textContent = p.topic;
   $("sGroup").textContent = p.group;
+  // eslint-disable-next-line no-unsanitized/property -- 組み立て済みの HTML。差し込む値は esc() 済みか数値・固定文字(2026-10-30 に全件確認)
   $("sPhrases").innerHTML = p.phrases.map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("");
 }
 
 function renderStreak(){
   var n = streak();
+  // eslint-disable-next-line no-unsanitized/property -- 組み立て済みの HTML。差し込む値は esc() 済みか数値・固定文字(2026-10-30 に全件確認)
   $("streakBox").innerHTML = "<b>" + S.sessions.length + "</b> sessions &nbsp;·&nbsp; <b>" + n + "</b>d streak";
   var d = dueCards().length, badge = $("dueBadge");
   badge.textContent = d;
@@ -696,12 +684,14 @@ function renderLog(){
   var keys = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a]; }).slice(0,7);
   var max = keys.length ? counts[keys[0]] : 1;
   $("errSheet").classList.toggle("hide", !keys.length);
+  // eslint-disable-next-line no-unsanitized/property -- 組み立て済みの HTML。差し込む値は esc() 済みか数値・固定文字(2026-10-30 に全件確認)
   $("errBars").innerHTML = keys.map(function(k){
     return '<tr><td class="lab">'+esc(k)+'</td><td><div class="bar" style="width:'+
       Math.max(2, Math.round(counts[k]/max*100))+'%"></div></td><td class="n">'+counts[k]+"</td></tr>";
   }).join("");
 
   var list = S.sessions.slice().reverse();
+  // eslint-disable-next-line no-unsanitized/property -- 組み立て済みの HTML。差し込む値は esc() 済みか数値・固定文字(2026-10-30 に全件確認)
   $("logList").innerHTML = list.length ? list.map(function(s){
     var body = "";
     (s.upgrades||[]).slice(0,5).forEach(function(u){
@@ -812,15 +802,6 @@ $("btnImport").addEventListener("click", function(){
     S = normalize(o); save();
     n.className = "note ok"; n.textContent = "復元しました。セッション " + S.sessions.length + " 件、カード " + S.cards.length + " 枚。";
     renderToday(); renderStreak(); renderLog(); $("taImport").value = "";
-  }catch(e){ n.className = "note err"; n.textContent = "読み込めませんでした。バックアップJSONをそのまま貼り付けてください。"; }
+  }catch{ n.className = "note err"; n.textContent = "読み込めませんでした。バックアップJSONをそのまま貼り付けてください。"; }
 });
 </script>
-<script>
-if("serviceWorker" in navigator){
-  window.addEventListener("load", function(){
-    navigator.serviceWorker.register("./sw.js").catch(function(){});
-  });
-}
-</script>
-</body>
-</html>

@@ -1,0 +1,109 @@
+# フレーズバンク（機能別チャンク）
+
+単語ではなく**かたまり**で覚える。流暢さは語彙数ではなく「取り出す速さ」で決まる。
+使い方: 毎セッション前に **1グループだけ** 選び、その3つを TARGET PHRASES に入れる。
+選び方は順番ではなく **セッションタイプに合うもの**:
+OPINION→G1,G3 / BUSINESS→G8,G9,G10 / EXPLAIN→G6,G7 / RETELL→G6,G11 /
+RAPID→G5,G4 / ABSTRACT→G2,G3,G12。一巡したら2周目は同じ組み合わせで速度を上げる。
+「知っている」ではなく「会話中に無意識に出た」でチェックを入れること。
+
+---
+
+## 1. 意見を組み立てる（I think からの脱却）
+- The way I see it, ...
+- I'd argue that ...
+- My sense is that ...
+- If I had to take a position, I'd say ...
+- I'm inclined to think ...
+- What strikes me is ...
+
+## 2. ヘッジ（断定を避ける・C1の必須技術）
+- It tends to be the case that ...
+- To some extent, yes — but ...
+- More often than not, ...
+- I wouldn't go that far, but ...
+- There's an argument that ...
+- Broadly speaking, ...
+
+## 3. 反論・受け流し（議論の中心）
+- That said, ...
+- I take your point, but ...
+- I'd push back on that slightly.
+- That's true in theory. In practice, ...
+- I see it almost the opposite way.
+- Fair — though that assumes ...
+
+## 4. 言い直し・立て直し（詰まったときの生命線）
+- Or rather, ...
+- What I mean is ...
+- Let me put that another way.
+- Sorry — let me back up.
+- I'm not putting this well. The point is ...
+
+## 5. 時間を稼ぐ（沈黙より圧倒的にマシ）
+- That's a good question — give me a second.
+- It depends what you mean by ...
+- Hmm, there are two ways to look at that.
+- I've not thought about it in those terms before.
+
+## 6. 構造化（長く話すとき）
+- There are basically two things going on here.
+- The short answer is X. The longer answer is ...
+- Let me start with the practical side.
+- ... and that brings me to the second point.
+- So to bring it back to your question, ...
+
+## 7. 具体化・強調
+- To give you a concrete example, ...
+- This is exactly the problem: ...
+- What really matters here is ...
+- And that's not a small thing.
+
+## 8. ビジネス：悪い知らせ
+- I want to be upfront with you about something.
+- I'm afraid the timeline has moved.
+- I'd rather tell you now than closer to the date.
+- Here's where we are, and here's what I'd propose.
+
+## 9. ビジネス：提案・交渉
+- What I'd propose is ...
+- Would it work for you if we ...?
+- I have some flexibility on X, less on Y.
+- Let's see if we can find a middle ground.
+- I can't commit to that, but what I can do is ...
+
+## 10. ビジネス：異論・依頼を断る
+- I'm not sure that's the right call, and here's why.
+- Can I offer a different read on this?
+- Realistically, that's not something we can absorb right now.
+- I'd want to understand the reasoning before I sign up to that.
+
+## 11. 因果・条件（文法が口から出る形で）
+- which means that ...
+- ... , and as a result, ...
+- If that were the case, we'd have to ...
+- Had we known earlier, we would have ...
+- The reason being that ...
+
+## 12. 締める
+- So on balance, I'd say ...
+- That's roughly where I land on it.
+- I could be persuaded otherwise, but that's my starting point.
+
+---
+
+## 進捗チェック
+| グループ | 導入日 | 会話中に自然に出た |
+|---|---|---|
+| 1 意見 | | ☐ |
+| 2 ヘッジ | | ☐ |
+| 3 反論 | | ☐ |
+| 4 言い直し | | ☐ |
+| 5 時間稼ぎ | | ☐ |
+| 6 構造化 | | ☐ |
+| 7 具体化 | | ☐ |
+| 8 悪い知らせ | | ☐ |
+| 9 提案 | | ☐ |
+| 10 断る | | ☐ |
+| 11 因果条件 | | ☐ |
+| 12 締め | | ☐ |
