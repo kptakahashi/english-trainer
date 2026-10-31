@@ -7,4 +7,4 @@ plan は prompt でもある。「plans/2026-10-30-dev-env-like-wellness.md を�
 
 | 日付 | 名前 | issue | 状態 |
 |---|---|---|---|
-| 2026-10-30 | dev-env-like-wellness | (未作成) | 進行中 |
+| 2026-10-30 | dev-env-like-wellness | (未作成) | 完了 → #1 |
