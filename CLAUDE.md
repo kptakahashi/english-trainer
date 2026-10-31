@@ -40,5 +40,5 @@ npm run lint && .venv/Scripts/python -m ruff check . && .venv/Scripts/python -m 
 
 - 本人が決める欄: plan の「やらないこと」「検証方法」、issue を閉じるか、decision の「決定」。Claude は下書きしてよいが、本人が承認するまで「下書き」のまま
 - 提案・plan は、項目ごとに「何を/なぜ/リスク・トレードオフ」を書き、推す案を 1 つ示す
-- main は PR でだけ変える。小さな直しも PR(issue と plan は要らない)
+- main は PR でだけ変える。小さな直しも PR(issue と plan は要らない)。GitHub のルールで PR と CI の check が必須になっている
 - 決定や plan に無いことはやらず、plan の「メモ」に書いて止まる

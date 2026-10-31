@@ -1,6 +1,6 @@
 # English の開発環境を Wellness app と同じ型にそろえる
 
-状態: 進行中
+状態: 完了(english-trainer#1、2026-10-31)
 課題: なし(hub#0002「5 つとも Wellness app と同じ開発環境に揃える」の実施)
 期限: 2026-11-06
 
@@ -66,3 +66,5 @@ English を git と PR で管理し、JS と Python を機械で止める状態�
 - 2026-10-30: 公開リポジトリは無料プランでもブランチ保護が使える。main を「PR 必須・CI 必須」にするのは、リポジトリの設定の変更なので本人が決める
 - 2026-10-30: 試しの commit で、pre-commit の秘密の検査がすり抜けた。`set -o pipefail` の下で `echo … | grep -q` を使うと、grep が早く抜けたときに echo が SIGPIPE で失敗し、「見つからなかった」扱いになる(大きな diff で起きる)。here-string(`<<<`)で渡す形に直し、止まることを確かめた。同じ書き方が wellness-app の `.githooks/pre-commit` にもあるので、別の PR で直す
 - 2026-10-30: `pwa/` の中に、手でアップロードしていた頃の git リポジトリ(`pwa/.git`)があった。公開リポジトリと同じ commit を指すだけの重複なので、`C:\old\english-pwa-git-backup` に移した(消していない)
+- 2026-10-31: 完了。Pages の公開元を GitHub Actions に切り替えてから #1 をマージした。公開中の `index.html` が手元で作ったものと 1 バイトも違わず、スマホのアプリも今までどおり開いた(本人確認)
+- 2026-10-31: main を GitHub のルールで保護した(PR 必須・CI の check 必須・強制 push と削除の禁止)。直接 push が拒否されることを確かめた
